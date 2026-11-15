@@ -20,15 +20,13 @@ func validate(s string) ([]string, error) {
 		return []string{}, invalidAddress
 	}
 
-	var ind int
-	if ind = strings.LastIndex(parsedDomain.Address, "@"); ind != 1 {
-		fmt.Printf("Indexed men,, %d", ind)
-		return []string{}, invalidAddress
+	ind := strings.LastIndex(parsedDomain.Address, "@")
+	splitList := []string{
+		parsedDomain.Address[:ind],
+		parsedDomain.Address[ind+1:],
 	}
-	splitList := strings.Split(parsedDomain.Address, "@")
-	if len(splitList[0]) > 64 {
-		return []string{}, invalidAddress
-	}
+	fmt.Println(splitList[1])
+
 	if strings.Contains(splitList[0], ".") || !strings.Contains(splitList[1], ".") {
 
 		return []string{}, invalidAddress
