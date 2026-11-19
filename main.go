@@ -39,6 +39,9 @@ func mx(domain string) ([]*net.MX, error) {
 	domain = strings.TrimSpace(domain)
 	return net.LookupMX(domain)
 }
+func checkAArecords(s string) (addrs []string, err error) {
+	return net.LookupHost(s)
+}
 
 func userInput() (string, error) {
 	reader := bufio.NewReader(os.Stdin)
@@ -68,16 +71,24 @@ func main() {
 	result, err := mx(passedList[1])
 	if err != nil {
 		fmt.Printf("Had an error: %v", err)
-		return
-	}
-	for i, data := range result {
-		var summary string
-		if data.Host == "." {
-			summary = "No host names"
-			break
+		aaResults, err := checkAArecords(passedList[1])
+		if err != nil {
+			fmt.Printf("Had an error: %v", err)
+			return
 		}
-		summary += fmt.Sprintf("%v -- %d -- %s", i, data.Pref, data.Host)
-		fmt.Println(summary)
-	}
+		for index, data := range aaResults {
+			fmt.Printf("%d -- %v", index, data)
+		}
 
+	} else {
+		for i, data := range result {
+			var summary string
+			if data.Host == "." {
+				summary = "No host names"
+				break
+			}
+			summary += fmt.Sprintf("%v -- %d -- %s", i, data.Pref, data.Host)
+			fmt.Println(summary)
+		}
+	}
 }
