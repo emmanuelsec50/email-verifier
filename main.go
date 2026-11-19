@@ -71,7 +71,13 @@ func main() {
 		return
 	}
 	for i, data := range result {
-		fmt.Printf("%v -- %d -- %s\n", i, data.Pref, data.Host)
+		var summary string
+		if data.Host == "." {
+			summary = "No host names"
+			break
+		}
+		summary += fmt.Sprintf("%v -- %d -- %s", i, data.Pref, data.Host)
+		fmt.Println(summary)
 	}
 
 }
