@@ -1,33 +1,35 @@
 package main
 
 import (
+	"bufio"
 	"errors"
 	"fmt"
 	"net"
 	"net/mail"
+	"os"
 	"strings"
 )
 
-var invalidAddress = errors.New("Invalid Email address")
+var invalidAddress = errors.New("invalid email address")
 
 // var invalidInput = errors.New("Invalid input")
-var domain string
+// var domain string
 
 func validate(s string) ([]string, error) {
 	s = strings.TrimSpace(s)
-	parsedDomain, err := mail.ParseAddress(s)
+	parsedAddress, err := mail.ParseAddress(s)
 	if err != nil {
 		return []string{}, invalidAddress
 	}
 
-	ind := strings.LastIndex(parsedDomain.Address, "@")
+	ind := strings.LastIndex(parsedAddress.Address, "@")
 	splitList := []string{
-		parsedDomain.Address[:ind],
-		parsedDomain.Address[ind+1:],
+		parsedAddress.Address[:ind],
+		parsedAddress.Address[ind+1:],
 	}
-	fmt.Println(splitList[1])
+	// fmt.Println(splitList[1])
 
-	if strings.Contains(splitList[0], ".") || !strings.Contains(splitList[1], ".") {
+	if !strings.Contains(splitList[1], ".") {
 
 		return []string{}, invalidAddress
 	}
@@ -46,25 +48,27 @@ func mx(domain string) error {
 	return nil
 }
 
-func userInput() error {
-	for {
-		fmt.Print("Enter domain: ")
-		_, err := fmt.Scan(&domain)
-		if err != nil {
-			continue
-		} else {
-			break
-		}
+func userInput() (string, error) {
+	reader := bufio.NewReader(os.Stdin)
+	fmt.Print("Enter domain: ")
+	domain, err := reader.ReadString('\n')
+	domain = strings.TrimSpace(domain)
+
+	if err != nil {
+		return "", err
 	}
-	return nil
+
+	return domain, nil
 }
 
 func main() {
-	if err := userInput(); err != nil {
+	email, err := userInput()
+	// fmt.Printf("This is the email %v %v", email, err)
+	if err != nil {
 		fmt.Printf("Had an error: %v", err)
 		return
 	}
-	passedList, err := validate(domain)
+	passedList, err := validate(email)
 	if err != nil {
 		fmt.Printf("Had an error: %v", err)
 		return
