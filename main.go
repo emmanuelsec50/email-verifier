@@ -35,17 +35,9 @@ func validate(s string) ([]string, error) {
 	}
 	return splitList, nil
 }
-func mx(domain string) error {
+func mx(domain string) ([]*net.MX, error) {
 	domain = strings.TrimSpace(domain)
-
-	result, err := net.LookupMX(domain)
-	if err != nil {
-		return invalidAddress
-	}
-	for index, data := range result {
-		fmt.Printf("%v -- %v -- %v\n", index+1, data.Pref, data.Host)
-	}
-	return nil
+	return net.LookupMX(domain)
 }
 
 func userInput() (string, error) {
@@ -73,9 +65,13 @@ func main() {
 		fmt.Printf("Had an error: %v", err)
 		return
 	}
-	if err = mx(passedList[1]); err != nil {
+	result, err := mx(passedList[1])
+	if err != nil {
 		fmt.Printf("Had an error: %v", err)
 		return
+	}
+	for i, data := range result {
+		fmt.Printf("%v -- %d -- %s\n", i, data.Pref, data.Host)
 	}
 
 }
