@@ -86,15 +86,16 @@ func main() {
 		}
 
 	} else {
+		summary := "MX RECORDS RESULTS\n"
 		for i, data := range result {
-			var summary string
+
 			if data.Host == "." {
 				summary = "No host names"
 				break
 			}
-			summary += fmt.Sprintf("%v -- %d -- %s", i, data.Pref, data.Host)
-			fmt.Println(summary)
+			summary += fmt.Sprintf("%v -- %d -- %s\n", i, data.Pref, data.Host)
 		}
+		fmt.Println(summary)
 	}
 	txtResults, err := checkTXTrecords(passedList[1])
 	if err != nil {
