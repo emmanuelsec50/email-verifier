@@ -56,6 +56,10 @@ func userInput() (string, error) {
 	return domain, nil
 }
 
+func checkTXTrecords(s string) ([]string, error) {
+	return net.LookupTXT(s)
+}
+
 func main() {
 	email, err := userInput()
 	// fmt.Printf("This is the email %v %v", email, err)
@@ -63,6 +67,7 @@ func main() {
 		fmt.Printf("Had an error: %v", err)
 		return
 	}
+
 	passedList, err := validate(email)
 	if err != nil {
 		fmt.Printf("Had an error: %v", err)
@@ -91,4 +96,15 @@ func main() {
 			fmt.Println(summary)
 		}
 	}
+	txtResults, err := checkTXTrecords(passedList[1])
+	if err != nil {
+		fmt.Printf("Had an error: %v", err)
+		return
+	}
+	var txtDisplay strings.Builder
+	txtDisplay.WriteString("TXT RESULTS\n")
+	for i, data := range txtResults {
+		txtDisplay.WriteString(fmt.Sprintf("%d -- %v", i, data))
+	}
+	fmt.Println(txtDisplay.String())
 }
