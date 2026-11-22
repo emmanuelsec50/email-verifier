@@ -42,6 +42,13 @@ func mx(domain string) ([]*net.MX, error) {
 func checkAArecords(s string) (addrs []string, err error) {
 	return net.LookupHost(s)
 }
+func checkSPFrecords(s string) ([]string, error) {
+	return net.LookupTXT(s)
+}
+func checkDMARCrecords(s string) ([]string, error) {
+	newString := fmt.Sprintf("_dmarc.%v", s)
+	return net.LookupTXT(newString)
+}
 
 func userInput() (string, error) {
 	reader := bufio.NewReader(os.Stdin)
@@ -54,10 +61,6 @@ func userInput() (string, error) {
 	}
 
 	return domain, nil
-}
-
-func checkTXTrecords(s string) ([]string, error) {
-	return net.LookupTXT(s)
 }
 
 func main() {
@@ -97,15 +100,26 @@ func main() {
 		}
 		fmt.Println(summary)
 	}
-	txtResults, err := checkTXTrecords(passedList[1])
+	txtResults, err := checkSPFrecords(passedList[1])
 	if err != nil {
 		fmt.Printf("Had an error: %v", err)
 		return
 	}
 	var txtDisplay strings.Builder
-	txtDisplay.WriteString("TXT RESULTS\n")
+	txtDisplay.WriteString("SPF RECORDS RESULTS\n")
 	for i, data := range txtResults {
 		txtDisplay.WriteString(fmt.Sprintf("%d -- %v", i, data))
 	}
 	fmt.Println(txtDisplay.String())
+
+	dmarcList, err := checkDMARCrecords(passedList[1])
+	if err != nil {
+		fmt.Printf("Had an error: %v", err)
+	}
+	dmarcSummary := "DMARC RECORDS RESULTS\n"
+	for i, data := range dmarcList {
+
+		dmarcSummary += fmt.Sprintf("%v -- %s\n", i, data)
+	}
+	fmt.Println(dmarcSummary)
 }
