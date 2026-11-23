@@ -49,7 +49,9 @@ func checkDMARCrecords(s string) ([]string, error) {
 	newString := fmt.Sprintf("_dmarc.%v", s)
 	return net.LookupTXT(newString)
 }
-
+func ipLoookup(s string) ([]net.IP, error) {
+	return net.LookupIP(s)
+}
 func userInput() (string, error) {
 	reader := bufio.NewReader(os.Stdin)
 	fmt.Print("Enter domain: ")
@@ -108,7 +110,7 @@ func main() {
 	var txtDisplay strings.Builder
 	txtDisplay.WriteString("SPF RECORDS RESULTS\n")
 	for i, data := range txtResults {
-		txtDisplay.WriteString(fmt.Sprintf("%d -- %v", i, data))
+		fmt.Fprintf(&txtDisplay, "%d -- %v", i, data)
 	}
 	fmt.Println(txtDisplay.String())
 
@@ -122,4 +124,14 @@ func main() {
 		dmarcSummary += fmt.Sprintf("%v -- %s\n", i, data)
 	}
 	fmt.Println(dmarcSummary)
+	ipList, err := ipLoookup(passedList[1])
+	if err != nil {
+		fmt.Printf("Had ana error %v", err)
+		return
+	}
+	ipDisplay := "IP RESULTS\n"
+	for i, data := range ipList {
+		ipDisplay += fmt.Sprintf("%d -- %v\n", i+1, data.String())
+	}
+	fmt.Println(ipDisplay)
 }
